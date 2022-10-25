@@ -1,0 +1,87 @@
+from typing import Optional
+
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from integrations.db.session import get_session
+from models import Place
+from repositories.places_repository import PlacesRepository
+from schemas.places import PlaceUpdate
+
+
+class PlacesService:
+    """
+    Сервис для работы с информацией о любимых местах.
+    """
+
+    def __init__(self, session: AsyncSession = Depends(get_session)):
+        """
+        Инициализация сервиса.
+
+        :param session: Объект сессии для взаимодействия с базой данных
+        """
+
+        self.session = session
+        self.places_repository = PlacesRepository(session)
+
+    async def get_places_list(self, limit: int) -> list[Place]:
+        """
+        Получение списка любимых мест.
+
+        :param limit: Ограничение на количество элементов в выборке.
+        :return:
+        """
+
+        return await self.places_repository.find_all_by(limit=limit)
+
+    async def get_place(self, primary_key: int) -> Optional[Place]:
+        """
+        Получение объекта любимого места по его идентификатору.
+
+        :param primary_key: Идентификатор объекта.
+        :return:
+        """
+
+        return await self.places_repository.find(primary_key)
+
+    async def create_place(self, place: Place) -> Optional[int]:
+        """
+        Создание нового объекта любимого места по переданным данным.
+
+        :param place: Данные создаваемого объекта.
+        :return: Идентификатор созданного объекта.
+        """
+
+        primary_key = await self.places_repository.create_model(place)
+        await self.session.commit()
+
+        return primary_key
+
+    async def update_place(self, primary_key: int, place: PlaceUpdate) -> Optional[int]:
+        """
+        Обновление объекта любимого места по переданным данным.
+
+        :param primary_key: Идентификатор объекта.
+        :param place: Данные для обновления объекта.
+        :return:
+        """
+
+        matched_rows = await self.places_repository.update_model(
+            primary_key, **place.dict(exclude_unset=True)
+        )
+        await self.session.commit()
+
+        return matched_rows
+
+    async def delete_place(self, primary_key: int) -> Optional[int]:
+        """
+        Удаление объекта любимого места по его идентификатору.
+
+        :param primary_key: Идентификатор объекта.
+        :return:
+        """
+
+        matched_rows = await self.places_repository.delete_by(id=primary_key)
+        await self.session.commit()
+
+        return matched_rows

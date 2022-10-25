@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  # основное приложение
+  app:
+    build: .
+    command: uvicorn main:app --reload --host 0.0.0.0 --port=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/src
+      - ./docs:/docs
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  # база данных
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"

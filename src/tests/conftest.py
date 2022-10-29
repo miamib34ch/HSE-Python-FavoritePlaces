@@ -11,6 +11,7 @@ from settings import settings
 async def session():
     """
     Фикстура тестовой сессии для работы с базой данных.
+    После тестирования изменения, сделанные в БД не сохраняются.
 
     :return:
     """
@@ -40,3 +41,16 @@ async def client():
     """
 
     yield AsyncClient(app=app, base_url=settings.base_url)
+
+
+@pytest_asyncio.fixture
+async def non_mocked_hosts():
+    """
+    Исключение запросов к приложению из процесса создания мок-объектов для запросов.
+    Используется автоматически pytest_httpx.
+    https://colin-b.github.io/pytest_httpx/
+
+    :return:
+    """
+
+    yield ["localhost", "127.0.0.1", "0.0.0.0"]

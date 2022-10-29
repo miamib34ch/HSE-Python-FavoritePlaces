@@ -22,14 +22,24 @@ class TestPlacesCreateMethod:
         return "/api/v1/places"
 
     @pytest.mark.asyncio
-    async def test_method_success(self, client, session):
+    async def test_method_success(self, client, session, httpx_mock):
         """
         Тестирование успешного сценария.
 
         :param client: Фикстура клиента для запросов.
         :param session: Фикстура сессии для работы с БД.
+        :param httpx_mock: Фикстура запроса на внешние API.
         :return:
         """
+
+        mock_response = {
+            "city": "City",
+            "countryCode": "AA",
+            "locality": "Location",
+        }
+        # замена настоящего ответа от API на "заглушку" для тестирования
+        # настоящий запрос на API не производится
+        httpx_mock.add_response(json=mock_response)
 
         # передаваемые данные
         request_body = {
@@ -54,6 +64,9 @@ class TestPlacesCreateMethod:
         assert response_json["data"]["latitude"] == request_body["latitude"]
         assert response_json["data"]["longitude"] == request_body["longitude"]
         assert response_json["data"]["description"] == request_body["description"]
+        assert response_json["data"]["country"] == mock_response["countryCode"]
+        assert response_json["data"]["city"] == mock_response["city"]
+        assert response_json["data"]["locality"] == mock_response["locality"]
 
         # проверка существования записи в базе данных
         created_data = await PlacesRepository(session).find_all_by(
@@ -67,3 +80,6 @@ class TestPlacesCreateMethod:
         assert created_data[0].latitude == request_body["latitude"]
         assert created_data[0].longitude == request_body["longitude"]
         assert created_data[0].description == request_body["description"]
+        assert created_data[0].country == mock_response["countryCode"]
+        assert created_data[0].city == mock_response["city"]
+        assert created_data[0].locality == mock_response["locality"]

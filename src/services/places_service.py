@@ -3,6 +3,7 @@ from typing import Optional
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from clients.geo import LocationClient
 from integrations.db.session import get_session
 from models import Place
 from repositories.places_repository import PlacesRepository
@@ -51,6 +52,14 @@ class PlacesService:
         :param place: Данные создаваемого объекта.
         :return: Идентификатор созданного объекта.
         """
+
+        # обогащение данных путем получения дополнительной информации от API
+        if location := await LocationClient().get_location(
+            latitude=place.latitude, longitude=place.longitude
+        ):
+            place.country = location.alpha2code
+            place.city = location.city
+            place.locality = location.locality
 
         primary_key = await self.places_repository.create_model(place)
         await self.session.commit()

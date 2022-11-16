@@ -36,7 +36,7 @@ git clone https://github.com/mnv/python-course-favorite-places.git
 3. To run application correctly set up the database.
    Apply migrations to create tables in the database:
     ```shell
-    docker-compose run app alembic upgrade head
+    docker-compose run favorite-places-app alembic upgrade head
     ```
 
 4. Now it is possible to run the project inside the Docker container:
@@ -51,18 +51,18 @@ git clone https://github.com/mnv/python-course-favorite-places.git
 
 To first initialize migration functionality run:
 ```bash
-docker-compose exec app alembic init -t async migrations
+docker-compose exec favorite-places-app alembic init -t async migrations
 ```
 This command will create a directory with configuration files to set up asynchronous migrations' functionality.
 
 To create new migrations that will update database tables according updated models run this command:
 ```bash
-docker-compose run app alembic revision --autogenerate  -m "your description"
+docker-compose run favorite-places-app alembic revision --autogenerate  -m "your description"
 ```
 
 To apply created migrations run:
 ```bash
-docker-compose run app alembic upgrade head
+docker-compose run favorite-places-app alembic upgrade head
 ```
 
 ### Automation commands

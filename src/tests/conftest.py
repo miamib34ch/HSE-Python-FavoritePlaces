@@ -1,5 +1,6 @@
 import pytest_asyncio
 from httpx import AsyncClient
+from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from integrations.db.session import get_session
@@ -54,3 +55,17 @@ async def non_mocked_hosts():
     """
 
     yield ["localhost", "127.0.0.1", "0.0.0.0"]
+
+
+@pytest_asyncio.fixture
+async def event_producer_publish(mocker: MockerFixture):
+    """
+    Создание "заглушки" для метода EventProducer.publish().
+
+    :param mocker: MockerFixture
+    :return:
+    """
+
+    mocker.patch(
+        "integrations.events.producer.EventProducer.publish", return_value=None
+    )

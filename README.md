@@ -43,7 +43,7 @@ git clone https://github.com/mnv/python-course-favorite-places.git
     ```shell
     docker-compose up
     ```
-   When containers are up server starts at [http://0.0.0.0:8000/docs](http://0.0.0.0:8000/docs). You can open it in your browser.
+   When containers are up server starts at [http://0.0.0.0:8010/docs](http://0.0.0.0:8010/docs). You can open it in your browser.
 
 ## Usage
 

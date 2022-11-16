@@ -22,6 +22,7 @@ class TestPlacesCreateMethod:
         return "/api/v1/places"
 
     @pytest.mark.asyncio
+    @pytest.mark.usefixtures("event_producer_publish")
     async def test_method_success(self, client, session, httpx_mock):
         """
         Тестирование успешного сценария.

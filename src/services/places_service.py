@@ -5,9 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from clients.geo import LocationClient
 from integrations.db.session import get_session
+from integrations.events.producer import EventProducer
+from integrations.events.schemas import CountryCityDTO
 from models import Place
 from repositories.places_repository import PlacesRepository
 from schemas.places import PlaceUpdate
+from settings import settings
 
 
 class PlacesService:
@@ -64,6 +67,16 @@ class PlacesService:
         primary_key = await self.places_repository.create_model(place)
         await self.session.commit()
 
+        # публикация события о создании нового объекта любимого места
+        # для попытки импорта информации по нему в сервисе Countries Informer
+        place_data = CountryCityDTO(
+            city=place.city,
+            alpha2code=place.country,
+        )
+        EventProducer().publish(
+            queue_name=settings.rabbitmq.queue.places_import, body=place_data.json()
+        )
+
         return primary_key
 
     async def update_place(self, primary_key: int, place: PlaceUpdate) -> Optional[int]:
@@ -79,6 +92,10 @@ class PlacesService:
             primary_key, **place.dict(exclude_unset=True)
         )
         await self.session.commit()
+
+        # публикация события для попытки импорта информации
+        # по обновленному объекту любимого места в сервисе Countries Informer
+        # todo
 
         return matched_rows
 

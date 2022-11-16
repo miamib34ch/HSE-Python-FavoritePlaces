@@ -1,26 +1,44 @@
-version: '3.9'
+version: "3.9"
+
+networks:
+  favorite-places:
 
 services:
-  # основное приложение
-  app:
+  # сервис приложения FastAPI
+  favorite-places-app:
     build: .
+    container_name: favorite-places-app
     command: uvicorn main:app --reload --host 0.0.0.0 --port=8000
     ports:
-      - "8000:8000"
+      - "8010:8000"
     volumes:
       - ./src:/src
       - ./docs:/docs
-    depends_on:
-      - db
+      - ./logs:/logs
     env_file:
       - .env
+    depends_on:
+      favorite-places-db:
+        condition: service_healthy
+    networks:
+      - favorite-places
 
-  # база данных
-  db:
+  # сервис СУБД PostgreSQL
+  favorite-places-db:
     image: postgres:15-alpine
+    container_name: favorite-places-db
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "54320:5432"
+    # https://docs.docker.com/compose/compose-file/compose-file-v3/#healthcheck
+    healthcheck:
+      # https://www.postgresql.org/docs/current/app-pg-isready.html
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - favorite-places

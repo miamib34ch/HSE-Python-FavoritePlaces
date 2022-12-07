@@ -1,6 +1,8 @@
+import logging.config
 from typing import Optional
 
 from fastapi import Depends
+from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from clients.geo import LocationClient
@@ -11,6 +13,9 @@ from models import Place
 from repositories.places_repository import PlacesRepository
 from schemas.places import PlaceUpdate
 from settings import settings
+
+logging.config.fileConfig("logging.conf")
+logger = logging.getLogger()
 
 
 class PlacesService:
@@ -69,13 +74,19 @@ class PlacesService:
 
         # публикация события о создании нового объекта любимого места
         # для попытки импорта информации по нему в сервисе Countries Informer
-        place_data = CountryCityDTO(
-            city=place.city,
-            alpha2code=place.country,
-        )
-        EventProducer().publish(
-            queue_name=settings.rabbitmq.queue.places_import, body=place_data.json()
-        )
+        try:
+            place_data = CountryCityDTO(
+                city=place.city,
+                alpha2code=place.country,
+            )
+            EventProducer().publish(
+                queue_name=settings.rabbitmq.queue.places_import, body=place_data.json()
+            )
+        except ValidationError:
+            logger.warning(
+                "The message was not well-formed during publishing event.",
+                exc_info=True,
+            )
 
         return primary_key
 

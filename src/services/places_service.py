@@ -99,6 +99,9 @@ class PlacesService:
         :return:
         """
 
+        # при изменении координат – обогащение данных путем получения дополнительной информации от API
+        # todo
+
         matched_rows = await self.places_repository.update_model(
             primary_key, **place.dict(exclude_unset=True)
         )

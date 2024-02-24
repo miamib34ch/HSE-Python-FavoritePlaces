@@ -1,4 +1,4 @@
-# Favorite Places Service
+# Favorite Places Service 
 
 Service for saving favorite places.
 

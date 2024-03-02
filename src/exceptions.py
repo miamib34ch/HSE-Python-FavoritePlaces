@@ -11,7 +11,7 @@ class ApiHTTPException(HTTPException):
     """Обработка ошибок API."""
 
     status_code: int
-    code: str
+    code: str = "api-error"
     detail: str
 
     def __init__(

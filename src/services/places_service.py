@@ -11,7 +11,7 @@ from integrations.events.producer import EventProducer
 from integrations.events.schemas import CountryCityDTO
 from models import Place
 from repositories.places_repository import PlacesRepository
-from schemas.places import PlaceUpdate
+from schemas.places import PlaceRequest
 from settings import settings
 
 logging.config.fileConfig("logging.conf")
@@ -90,7 +90,7 @@ class PlacesService:
 
         return primary_key
 
-    async def update_place(self, primary_key: int, place: PlaceUpdate) -> Optional[int]:
+    async def update_place(self, primary_key: int, place: PlaceRequest) -> Optional[int]:
         """
         Обновление объекта любимого места по переданным данным.
 

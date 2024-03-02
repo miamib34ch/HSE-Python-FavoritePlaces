@@ -1,7 +1,5 @@
 import pytest
 from starlette import status
-import re
-from geocoder.base import OneResult
 
 from models import Place
 from repositories.places_repository import PlacesRepository
@@ -97,17 +95,12 @@ class TestPlacesCreateMethod:
         :param session: Фикстура сессии для работы с БД.
         :return:
         """
-        mock_response = {
-            "city": "Philadelphia",
-            "countryCode": "US",
-            "locality": "Cinnaminson",
-        }
 
         # передаваемые данные
         request_body = {
             "latitude": 40,
             "longitude": -75,
-            "description": "Описание тестового места"
+            "description": "Описание тестового места",
         }
         # проверка существования записи в базе данных
         await PlacesRepository(session).create_model(request_body)
@@ -128,9 +121,9 @@ class TestPlacesCreateMethod:
         assert item["latitude"] == request_body["latitude"]
         assert item["longitude"] == request_body["longitude"]
         assert item["description"] == request_body["description"]
-        assert item["country"] == None
-        assert item["city"] == None
-        assert item["locality"] == None
+        assert item["country"] is None
+        assert item["city"] is None
+        assert item["locality"] is None
 
         assert "total" in response_json
         assert isinstance(response_json["total"], int)

@@ -90,7 +90,9 @@ class PlacesService:
 
         return primary_key
 
-    async def update_place(self, primary_key: int, place_request: PlaceRequest) -> Optional[int]:
+    async def update_place(
+        self, primary_key: int, place_request: PlaceRequest
+    ) -> Optional[int]:
         """
         Обновление объекта любимого места по переданным данным.
 

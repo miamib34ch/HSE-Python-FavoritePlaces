@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi_pagination import Page, paginate
 
 import geocoder
 from geocoder.ipinfo import IpinfoQuery
 
 from exceptions import ApiHTTPException, ObjectNotFoundException
 from models.places import Place
-from schemas.places import PlaceResponse, PlacesListResponse, PlaceRequest
+from schemas.places import PlaceResponse, PlaceRequest
 from schemas.routes import Description, MetadataTag
 from services.places_service import PlacesService
 
@@ -20,14 +21,14 @@ tag_places = MetadataTag(
 @router.get(
     "",
     summary="Получение списка объектов",
-    response_model=PlacesListResponse,
+    response_model=Page[Place],
 )
 async def get_list(
     limit: int = Query(
         20, gt=0, le=100, description="Ограничение на количество объектов в выборке"
     ),
     places_service: PlacesService = Depends(),
-) -> PlacesListResponse:
+) -> Page[Place]:
     """
     Получение списка любимых мест.
 
@@ -36,7 +37,7 @@ async def get_list(
     :return:
     """
 
-    return PlacesListResponse(data=await places_service.get_places_list(limit=limit))
+    return paginate(await places_service.get_places_list(limit=limit))
 
 
 @router.get(

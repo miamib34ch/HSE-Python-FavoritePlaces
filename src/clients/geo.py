@@ -1,6 +1,7 @@
 """
 Функции для взаимодействия с внешним сервисом-провайдером данных о местонахождении.
 """
+import os
 from http import HTTPStatus
 from typing import Optional
 from urllib.parse import urlencode, urljoin
@@ -42,11 +43,12 @@ class LocationClient(BaseClient):
         :return:
         """
 
-        endpoint = "reverse-geocode-client"
+        endpoint = "reverse-geocode"
         query_params = {
             "latitude": latitude,
             "longitude": longitude,
             "localityLanguage": "en",
+            "key": os.getenv("API_KEY"),
         }
         url = urljoin(
             self.base_url,

@@ -6,9 +6,9 @@ from models import Place
 from schemas.base import ListResponse
 
 
-class PlaceUpdate(BaseModel):
+class PlaceRequest(BaseModel):
     """
-    Схема данных для обновления любимого места.
+    Схема данных для создания или обновления любимого места.
     """
 
     latitude: Optional[float] = None
